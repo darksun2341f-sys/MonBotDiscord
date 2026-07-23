@@ -1,0 +1,36 @@
+﻿{
+  "questions": [
+    {
+      "q": "Qu'est-ce que AOTR?",
+      "r": "AOTR est un serveur Discord avec une communauté active. Le bot AOTR RF BOT offre des systèmes de modération, économie, XP et bien d'autres fonctionnalités!"
+    },
+    {
+      "q": "Comment rejoindre?",
+      "r": "Vous pouvez rejoindre le serveur AOTR RF via une invitation Discord. Bienvenue!"
+    },
+    {
+      "q": "Quels sont les rôles?",
+      "r": "Les rôles dépendent de votre activité et niveau XP. Utilisez `/xp` pour voir votre profil et `/leaderboard` pour le classement."
+    },
+    {
+      "q": "Comment gagner de l'argent?",
+      "r": "Vous pouvez gagner de l'argent avec `/daily` (500💰 par jour), `/work` (50-200💰), ou `/rob` pour voler quelqu'un (50% chance)."
+    },
+    {
+      "q": "Qu'est-ce que le XP?",
+      "r": "Le XP (Experience Points) est gagné automatiquement en envoyant des messages. Tous les 100 XP vous passez au niveau suivant!"
+    },
+    {
+      "q": "Comment utiliser l'économie?",
+      "r": "Utilisez `/balance` pour voir votre solde, `/deposit` pour déposer à la banque, `/withdraw` pour retirer, et `/work` pour gagner de l'argent."
+    },
+    {
+      "q": "Qu'est-ce qu'un giveaway?",
+      "r": "Un giveaway est un concours où les gens peuvent participer en cliquant un bouton. Un ou plusieurs gagnants sont tirés au sort à la fin!"
+    },
+    {
+      "q": "Comment créer un ticket?",
+      "r": "Cliquez simplement sur le bouton 'Créer Ticket' et un canal privé sera créé pour votre question/problème. L'équipe de support vous aidera!"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MonBotDiscord - Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark">
+  <aside class="sidebar">
+    <div class="brand">MonBotDiscord</div>
+    <nav>
+      <a href="/">Accueil</a>
+      <a href="#">Tickets</a>
+      <a href="#">Welcome</a>
+      <a href="#">Modération</a>
+      <a href="#">Économie</a>
+      <a href="#">Paramètres</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div>Dashboard</div>
+      <div class="user">Admin</div>
+    </header>
+    <section class="content">
+      {% block content %}{% endblock %}
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+<div id="staff-root" data-guild-id="{{ guild_id }}" class="staff-dashboard">
+  <section class="staff-header">
+    <div>
+      <p class="eyebrow">Centre de gestion</p>
+      <h1>Staff Guild {{ guild_id }}</h1>
+      <p class="subtitle">Vue premium du staff avec données en temps réel et filtres intelligents.</p>
+    </div>
+    <div class="staff-actions">
+      <input id="staff-search" type="search" placeholder="Rechercher un membre, rôle, badge..." />
+      <button id="toggle-theme">Theme</button>
+    </div>
+  </section>
+
+  <section class="staff-overview" id="overview-panel">
+    <div class="overview-card">
+      <span>Staff total</span>
+      <strong id="overview-total">0</strong>
+    </div>
+    <div class="overview-card">
+      <span>Moyenne</span>
+      <strong id="overview-rating">0.0</strong>
+    </div>
+    <div class="overview-card">
+      <span>Tickets</span>
+      <strong id="overview-tickets">0</strong>
+    </div>
+    <div class="overview-card">
+      <span>Messages</span>
+      <strong id="overview-messages">0</strong>
+    </div>
+  </section>
+
+  <section class="staff-settings" id="settings-panel">
+    <div class="settings-card">
+      <h2>Paramètres de notification Staff</h2>
+      <div class="field-group">
+        <label for="settings-channel">ID du salon de notification</label>
+        <input id="settings-channel" type="text" placeholder="Ex: 123456789012345678" />
+      </div>
+      <div class="field-group">
+        <label for="settings-roles">IDs des rôles staff</label>
+        <textarea id="settings-roles" rows="3" placeholder="Entrez les IDs séparées par des virgules"></textarea>
+      </div>
+      <div class="toggles">
+        <label><input id="toggle-entry" type="checkbox" checked /> Annoncer les entrées</label>
+        <label><input id="toggle-exit" type="checkbox" checked /> Annoncer les sorties</label>
+        <label><input id="toggle-promotion" type="checkbox" checked /> Annoncer les promotions</label>
+        <label><input id="toggle-demotion" type="checkbox" checked /> Annoncer les rétrogradations</label>
+        <label><input id="toggle-role-add" type="checkbox" checked /> Annoncer ajouts de rôle</label>
+        <label><input id="toggle-role-remove" type="checkbox" checked /> Annoncer suppressions de rôle</label>
+      </div>
+      <button id="save-settings">Enregistrer les paramètres</button>
+      <p class="hint">Les changements de rôle staff seront envoyés dans le salon configuré et enregistrés dans l'historique.</p>
+    </div>
+  </section>
+
+  <section class="staff-events" id="event-history">
+    <div class="events-header">
+      <h2>Historique des événements</h2>
+      <button id="refresh-events">Actualiser</button>
+    </div>
+    <div class="events-list" id="events-list">
+      <p class="empty">Chargement de l'historique...</p>
+    </div>
+  </section>
+
+  <section class="staff-table-wrapper">
+    <div class="table-toolbar">
+      <div class="filters">
+        <button data-filter="all" class="active">Toutes</button>
+        <button data-filter="direction">Direction</button>
+        <button data-filter="administration">Administration</button>
+        <button data-filter="moderation">Modération</button>
+        <button data-filter="helpers">Helpeurs</button>
+        <button data-filter="animators">Animateurs</button>
+      </div>
+      <div class="sort">
+        <span>Trier par :</span>
+        <select id="staff-sort">
+          <option value="status">Statut</option>
+          <option value="name">Nom</option>
+          <option value="level">Niveau</option>
+          <option value="tickets_handled">Tickets</option>
+          <option value="last_activity">Dernière activité</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="staff-table" id="staff-table"></div>
+  </section>
+</div>
+<link rel="stylesheet" href="/static/modules/staff/css/staff.css">
+<script src="/static/modules/staff/js/staff.js"></script>
+{% endblock %}

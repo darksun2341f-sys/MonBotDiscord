@@ -1,0 +1,20 @@
+﻿{
+  "1": {
+    "id": 1,
+    "prize": "40 robux",
+    "end_time": "2026-07-23T19:43:20.239607",
+    "winners_count": 1,
+    "participants": [],
+    "channel_id": 1528463053610549428,
+    "message_id": 1529996610598076617
+  },
+  "2": {
+    "id": 2,
+    "prize": "40 robux",
+    "end_time": "2026-07-26T19:41:04.263416",
+    "winners_count": 1,
+    "participants": [],
+    "channel_id": 1528463053610549428,
+    "message_id": 1529996795222949898
+  }
+}

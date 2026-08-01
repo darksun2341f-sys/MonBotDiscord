@@ -1,0 +1,11 @@
+/* Minimal modern dark theme styles (custom CSS, no frameworks) */
+:root{--bg:#0f1115;--card:#0f1720;--muted:#94a3b8;--accent:#7c3aed;--text:#e6eef8}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.sidebar{position:fixed;left:0;top:0;width:220px;height:100vh;background:linear-gradient(180deg,#071126, #08122b);padding:20px;color:var(--text)}
+.sidebar .brand{font-weight:700;margin-bottom:12px}
+.sidebar nav a{display:block;color:var(--muted);text-decoration:none;padding:8px 0}
+.main{margin-left:220px}
+.topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.content{padding:24px}
+.cards{display:flex;gap:16px}
+.card{background:var(--card);padding:16px;border-radius:8px;box-shadow:0 4px 16px rgba(2,6,23,0.6);min-width:160px}

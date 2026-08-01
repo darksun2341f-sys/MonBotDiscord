@@ -1,0 +1,12 @@
+services:
+  - name: monbotdiscord-dashboard
+    type: web
+    env: python
+    buildCommand: python -m pip install --no-cache-dir -r requirements.txt
+    startCommand: python -m uvicorn web.app:app --host 0.0.0.0 --port $PORT
+
+  - name: monbotdiscord-bot
+    type: worker
+    env: python
+    buildCommand: python -m pip install --no-cache-dir -r requirements.txt
+    startCommand: python main.py

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Choisir un serveur</h2>
+  {% if guilds %}
+    <form method="post" action="/dashboard/select_guild">
+      <ul>
+        {% for g in guilds %}
+          <li>
+            <label>
+              <input type="radio" name="guild_id" value="{{ g.id }}" required>
+              {{ g.name }} ({{ g.id }})
+            </label>
+          </li>
+        {% endfor %}
+      </ul>
+      <p><button type="submit">Sélectionner</button></p>
+    </form>
+  {% else %}
+    <p>Aucun serveur disponible où le bot est présent et où vous avez les droits.</p>
+  {% endif %}
+{% endblock %}

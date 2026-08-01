@@ -27,6 +27,7 @@ class CommandConfig(commands.Cog):
         self.load_google_settings()
 
         self.bot.tree.interaction_check(self.command_check)
+        self.patch_interaction_send_message()
 
         if self.google_sync_interval > 0:
             self.google_auto_sync.start()
@@ -81,7 +82,8 @@ class CommandConfig(commands.Cog):
         return guild_config["commands"].setdefault(command_name, {
             "enabled": True,
             "required_role": None,
-            "required_channel": None
+            "required_channel": None,
+            "visibility": "public"
         })
 
     def get_command_settings(self, guild: discord.Guild, command_name: str):
@@ -111,7 +113,7 @@ class CommandConfig(commands.Cog):
                 return False
 
             header = [cell.strip().lower() for cell in rows[0]]
-            expected = ["guild_id", "command_name", "enabled", "required_role", "required_channel"]
+            expected = ["guild_id", "command_name", "enabled", "required_role", "required_channel", "visibility"]
             if not all(column in header for column in expected):
                 return False
 
@@ -149,7 +151,7 @@ class CommandConfig(commands.Cog):
             return False
 
         try:
-            header = [["guild_id", "command_name", "enabled", "required_role", "required_channel"]]
+            header = [["guild_id", "command_name", "enabled", "required_role", "required_channel", "visibility"]]
             rows = []
             for guild_id, guild_config in self.config.get("guilds", {}).items():
                 for command_name, settings in guild_config.get("commands", {}).items():
@@ -158,7 +160,8 @@ class CommandConfig(commands.Cog):
                         command_name,
                         "TRUE" if settings.get("enabled", True) else "FALSE",
                         settings.get("required_role") or "",
-                        settings.get("required_channel") or ""
+                        settings.get("required_channel") or "",
+                        settings.get("visibility", "public")
                     ])
 
             await asyncio.to_thread(self.google_worksheet.clear)
@@ -185,6 +188,27 @@ class CommandConfig(commands.Cog):
         settings = self.get_command_settings(guild, command_name)
         settings[key] = value
         self.save_config()
+
+    def is_private_command(self, interaction: discord.Interaction) -> bool:
+        if not interaction.guild or not interaction.command:
+            return False
+        settings = self.get_command_settings(interaction.guild, interaction.command.name)
+        return settings.get("visibility", "public") == "private"
+
+    def patch_interaction_send_message(self):
+        if getattr(CommandConfig, "_interaction_response_patched", False):
+            return
+
+        original_send_message = discord.InteractionResponse.send_message
+
+        async def patched_send_message(response, *args, **kwargs):
+            interaction = getattr(response, "interaction", None)
+            if interaction and self.is_private_command(interaction):
+                kwargs.setdefault("ephemeral", True)
+            return await original_send_message(response, *args, **kwargs)
+
+        discord.InteractionResponse.send_message = patched_send_message
+        CommandConfig._interaction_response_patched = True
 
     async def command_check(self, interaction: discord.Interaction) -> bool:
         if not interaction.guild:
@@ -223,8 +247,10 @@ class CommandConfig(commands.Cog):
         embed.add_field(name="Activée", value="✅ Oui" if settings.get("enabled", True) else "❌ Non", inline=True)
         role = settings.get("required_role")
         channel = settings.get("required_channel")
+        visibility = settings.get("visibility", "public")
         embed.add_field(name="Rôle requis", value=f"<@&{role}>" if role else "Aucun", inline=True)
         embed.add_field(name="Canal requis", value=f"<#{channel}>" if channel else "Aucun", inline=True)
+        embed.add_field(name="Visibilité", value="Public" if visibility == "public" else "Privé", inline=True)
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="command-config", description="⚙️ Configurer une commande")
@@ -316,6 +342,19 @@ class CommandConfig(commands.Cog):
         self.set_command_setting(interaction.guild, command, "required_channel", None)
         await interaction.response.send_message(f"✅ Canal requis retiré pour la commande `/{command}`.")
 
+    @app_commands.command(name="command-set-visibility", description="👁️ Choisir si les autres voient la commande")
+    @app_commands.describe(command="La commande à configurer", visibility="Public ou privé")
+    @app_commands.choices(visibility=[
+        app_commands.Choice(name="Public", value="public"),
+        app_commands.Choice(name="Privé", value="private")
+    ])
+    async def command_set_visibility(self, interaction: discord.Interaction, command: str, visibility: app_commands.Choice[str]):
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
+            return
+        self.set_command_setting(interaction.guild, command, "visibility", visibility.value)
+        await interaction.response.send_message(f"✅ Visibilité de la commande `/{command}` définie sur **{visibility.name}**.")
+
     @app_commands.command(name="command-list", description="📋 Lister toutes les configurations de commandes")
     async def command_list(self, interaction: discord.Interaction):
         guild_config = self.get_guild_config(interaction.guild)
@@ -331,9 +370,13 @@ class CommandConfig(commands.Cog):
             enabled = "✅" if settings.get("enabled", True) else "❌"
             role = f"<@&{settings['required_role']}>" if settings.get("required_role") else "Aucun"
             channel = f"<#{settings['required_channel']}>" if settings.get("required_channel") else "Aucun"
+            visibility = settings.get("visibility", "public")
             embed.add_field(
                 name=f"/{command_name}",
-                value=f"Activée: {enabled}\nRôle: {role}\nCanal: {channel}",
+                value=(f"Activée: {enabled}\n"
+                       f"Rôle: {role}\n"
+                       f"Canal: {channel}\n"
+                       f"Visibilité: {'Public' if visibility == 'public' else 'Privé'}"),
                 inline=False
             )
         await interaction.response.send_message(embed=embed, ephemeral=True)

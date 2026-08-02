@@ -1,7 +1,14 @@
 import truststore
+import sys
 
 # Use the Windows trust store for Discord's HTTPS connection.
 truststore.inject_into_ssl()
+
+# Force UTF-8 encoding for console output on Windows.
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
 
 import discord
 from discord.ext import commands
@@ -21,10 +28,10 @@ if env_path.exists():
 
 TOKEN = os.getenv("TOKEN")
 if not TOKEN:
-    print("❌ ERREUR: TOKEN non trouvé dans .env")
+    print("ERREUR: TOKEN non trouvé dans .env")
     exit(1)
 
-print(f"✅ TOKEN chargé avec succès!")
+print("TOKEN chargé avec succès!")
 
 # Intents
 intents = discord.Intents.default()
@@ -48,6 +55,11 @@ async def on_ready():
     print("=" * 50)
 
     try:
+        print("on_ready called")
+        print("Guilds:", [guild.name for guild in bot.guilds])
+        print("Commands loaded before sync:", len(bot.tree.commands))
+        print("Command names before sync:", [cmd.name for cmd in bot.tree.commands])
+
         synced = []
         for guild in bot.guilds:
             guild_synced = await bot.tree.sync(guild=discord.Object(id=guild.id))
@@ -55,7 +67,9 @@ async def on_ready():
             print(f"✅ Commandes slash synchronisées pour {guild.name}.")
 
         print(f"✅ {len(synced)} commande(s) slash synchronisée(s) sur les serveurs.")
-        print("💡 Essayez maintenant: /help, /status, /botinfo")
+        print("Commands loaded after sync:", len(bot.tree.commands))
+        print("Command names after sync:", [cmd.name for cmd in bot.tree.commands])
+        print("💡 Essayez maintenant: /ping, /sync_commands, /list_commands")
     except Exception as e:
         print(f"❌ Erreur: {e}")
 
@@ -106,6 +120,19 @@ async def sync_commands(interaction: discord.Interaction):
             print(f"❌ Échec de synchronisation pour {guild.name}: {e}")
 
     await interaction.followup.send(f"✅ Synchronisation terminée : {len(synced)} commande(s) synchronisée(s).", ephemeral=True)
+
+@bot.tree.command(name="list_commands", description="Affiche les commandes slash disponibles pour le bot.")
+async def list_commands(interaction: discord.Interaction):
+    commands_list = [cmd.name for cmd in bot.tree.walk_commands() if isinstance(cmd, discord.app_commands.Command)]
+    if not commands_list:
+        await interaction.response.send_message("⚠️ Aucune commande slash disponible pour le moment.", ephemeral=True)
+        return
+
+    commands_list.sort()
+    await interaction.response.send_message(
+        "✅ Commandes slash disponibles:\n" + "\n".join(f"• {name}" for name in commands_list),
+        ephemeral=True
+    )
 
 # Lancement du bot
 bot.run(TOKEN)

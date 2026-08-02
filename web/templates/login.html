@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin login</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <main class="main-panel">
+      <section class="auth-card">
+        <h1>Admin login</h1>
+        {% if error %}
+          <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+        <form method="post" action="/login">
+          <label>Admin token<input type="password" name="token" required></label>
+          <button class="btn btn-primary" type="submit">Login</button>
+        </form>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

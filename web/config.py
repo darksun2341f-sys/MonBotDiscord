@@ -27,6 +27,10 @@ DISCORD_REDIRECT_URI = os.getenv('DISCORD_REDIRECT_URI', 'http://localhost:8080/
 DATABASE_URL = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR.parent / "database" / "dashboard.db"}')
 DISCORD_BOT_ID = os.getenv('DISCORD_BOT_ID')
 
+# Admin login fallback
+ADMIN_TOKEN = os.getenv('ADMIN_TOKEN') or os.getenv('WEB_ADMIN_TOKEN')
+ADMIN_LOGIN_ENABLED = bool(ADMIN_TOKEN)
+
 # Web
 HOST = os.getenv('WEB_HOST', '127.0.0.1')
 PORT = int(os.getenv('WEB_PORT', 8080))

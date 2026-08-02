@@ -1,25 +1,78 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse
+from __future__ import annotations
+
+from pathlib import Path
+from urllib.parse import urlencode
+
+from fastapi import APIRouter, Form, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 
 from .. import config
 from ..database import get_db
 from ..services.dashboard_service import DashboardService
-from ..services.discord_oauth import DiscordOAuthError, build_authorize_url, exchange_code, fetch_user_data, fetch_user_guilds, generate_state
+from ..services.discord_oauth import DiscordOAuthError, exchange_code, fetch_user_data, fetch_user_guilds, generate_state
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 router = APIRouter(tags=["auth"])
 
 
-@router.get("/login")
-async def login(request: Request) -> RedirectResponse:
-    if not config.DISCORD_CLIENT_ID:
-        raise RuntimeError("DISCORD_CLIENT_ID is not configured.")
+@router.get("/login", response_class=HTMLResponse)
+async def login(request: Request) -> HTMLResponse | RedirectResponse:
+    if config.DISCORD_CLIENT_ID:
+        state = generate_state()
+        request.session["oauth_state"] = state
+        authorize_url = build_authorize_url(state)
+        return RedirectResponse(authorize_url, status_code=302)
 
-    state = generate_state()
-    request.session["oauth_state"] = state
-    authorize_url = build_authorize_url(state)
-    return RedirectResponse(authorize_url, status_code=302)
+    if not config.ADMIN_LOGIN_ENABLED:
+        raise RuntimeError("Discord OAuth is not configured and no ADMIN_TOKEN is set.")
+
+    return TEMPLATES.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "error": None,
+            "oauth_enabled": False,
+            "admin_login_enabled": True,
+        },
+    )
+
+
+@router.post("/login", response_class=HTMLResponse)
+async def login_post(request: Request, token: str = Form(...)) -> HTMLResponse:
+    if config.DISCORD_CLIENT_ID:
+        state = generate_state()
+        request.session["oauth_state"] = state
+        authorize_url = build_authorize_url(state)
+        return RedirectResponse(authorize_url, status_code=302)
+
+    if not config.ADMIN_LOGIN_ENABLED:
+        raise RuntimeError("Discord OAuth is not configured and no ADMIN_TOKEN is set.")
+
+    if token != config.ADMIN_TOKEN:
+        return TEMPLATES.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "error": "Token invalide.",
+                "oauth_enabled": False,
+                "admin_login_enabled": True,
+            },
+        )
+
+    with next(get_db()) as db:
+        user = DashboardService.upsert_user(db, {"id": "admin", "username": "Admin"})
+        request.session["user_id"] = user.discord_id
+        request.session["user_name"] = user.username
+        request.session["avatar"] = None
+        request.session["guilds"] = []
+        request.session["selected_guild_id"] = None
+
+    return RedirectResponse("/dashboard", status_code=302)
 
 
 @router.get("/auth/callback")

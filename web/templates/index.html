@@ -17,6 +17,8 @@
         {% else %}
           {% if oauth_enabled %}
             <a class="btn btn-primary" href="/login">Connect Discord</a>
+          {% elif admin_login_enabled %}
+            <a class="btn btn-primary" href="/login">Admin login</a>
           {% else %}
             <span class="badge">Discord OAuth not configured</span>
           {% endif %}

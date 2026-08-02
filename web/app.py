@@ -42,6 +42,7 @@ async def home(request: Request) -> HTMLResponse:
             "user": user,
             "guilds": guilds,
             "oauth_enabled": bool(config.DISCORD_CLIENT_ID and config.DISCORD_CLIENT_SECRET),
+            "admin_login_enabled": bool(config.ADMIN_LOGIN_ENABLED),
         },
     )
 

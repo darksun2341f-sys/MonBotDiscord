@@ -24,6 +24,7 @@ class Utils(commands.Cog):
                   "`/mute` - Rendre muet un utilisateur\n"
                   "`/unmute` - Enlever le mute\n"
                   "`/warn` - Avertir un utilisateur\n"
+                  "`/dewarn` - Retirer un avertissement\n"
                   "`/clear` - Supprimer des messages",
             inline=False
         )

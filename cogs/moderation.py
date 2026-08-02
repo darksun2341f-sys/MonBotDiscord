@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -7,6 +10,59 @@ from utils.authorization import has_permission
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.warnings_file = Path(__file__).parent.parent / "database" / "warnings.json"
+        self.warnings_data = self.load_warnings()
+
+    def load_warnings(self) -> dict:
+        self.warnings_file.parent.mkdir(parents=True, exist_ok=True)
+        if self.warnings_file.exists():
+            try:
+                with self.warnings_file.open("r", encoding="utf-8-sig") as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                return {}
+        return {}
+
+    def save_warnings(self) -> None:
+        with self.warnings_file.open("w", encoding="utf-8") as f:
+            json.dump(self.warnings_data, f, ensure_ascii=False, indent=2)
+
+    def get_warn_record(self, guild_id: int, member_id: int) -> dict:
+        guild_data = self.warnings_data.setdefault(str(guild_id), {})
+        return guild_data.setdefault(str(member_id), {"count": 0, "reasons": []})
+
+    def add_warning(self, guild_id: int, member_id: int, reason: str) -> dict:
+        record = self.get_warn_record(guild_id, member_id)
+        record["count"] += 1
+        record["reasons"].append(reason)
+        self.save_warnings()
+        return record
+
+    def remove_warning(self, guild_id: int, member_id: int, reason: str | None = None) -> dict | None:
+        guild_data = self.warnings_data.get(str(guild_id), {})
+        member_record = guild_data.get(str(member_id))
+        if not member_record or member_record.get("count", 0) == 0:
+            return None
+
+        if reason and reason in member_record.get("reasons", []):
+            member_record["reasons"].remove(reason)
+        elif member_record.get("reasons"):
+            member_record["reasons"].pop()
+
+        member_record["count"] = max(0, len(member_record.get("reasons", [])))
+
+        if member_record["count"] == 0:
+            guild_data.pop(str(member_id), None)
+            if not guild_data:
+                self.warnings_data.pop(str(guild_id), None)
+        self.save_warnings()
+        return member_record
+
+    def format_warning_list(self, record: dict) -> str:
+        lines = []
+        for idx, reason in enumerate(record.get("reasons", []), start=1):
+            lines.append(f"{idx}. {reason}")
+        return "\n".join(lines)
 
     @app_commands.command(name="kick", description="Expulse un utilisateur du serveur")
     @app_commands.describe(
@@ -106,6 +162,7 @@ class Moderation(commands.Cog):
     )
     async def warn(self, interaction: discord.Interaction, member: discord.Member, reason: str = "Aucune raison"):
         if has_permission(interaction, "moderate_members"):
+            record = self.add_warning(interaction.guild.id, member.id, reason)
             embed = discord.Embed(
                 title="⚠️ Avertissement",
                 description=f"{member.mention} a reçu un avertissement",
@@ -113,9 +170,41 @@ class Moderation(commands.Cog):
             )
             embed.add_field(name="Raison", value=reason, inline=False)
             embed.add_field(name="Par", value=interaction.user.mention, inline=False)
-            
+            embed.add_field(name="Total d'avertissements", value=str(record["count"]), inline=False)
+            if record.get("reasons"):
+                embed.add_field(name="Historique des avertissements", value=self.format_warning_list(record), inline=False)
+
             await interaction.response.send_message(embed=embed)
-            
+            try:
+                await member.send(embed=embed)
+            except:
+                pass
+        else:
+            await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
+
+    @app_commands.command(name="dewarn", description="Retire un avertissement d'un utilisateur")
+    @app_commands.describe(
+        member="L'utilisateur à qui retirer l'avertissement",
+        reason="Raison de la suppression de l'avertissement"
+    )
+    async def dewarn(self, interaction: discord.Interaction, member: discord.Member, reason: str = "Aucune raison"):
+        if has_permission(interaction, "moderate_members"):
+            record = self.remove_warning(interaction.guild.id, member.id, reason if reason != "Aucune raison" else None)
+            if not record:
+                return await interaction.response.send_message("❌ Aucun avertissement à retirer pour cet utilisateur.", ephemeral=True)
+
+            embed = discord.Embed(
+                title="✔️ Avertissement retiré",
+                description=f"{member.mention} a un avertissement retiré",
+                color=discord.Color.green()
+            )
+            embed.add_field(name="Raison", value=reason, inline=False)
+            embed.add_field(name="Par", value=interaction.user.mention, inline=False)
+            embed.add_field(name="Avertissements restants", value=str(record.get("count", 0)), inline=False)
+            if record.get("reasons"):
+                embed.add_field(name="Historique des avertissements", value=self.format_warning_list(record), inline=False)
+
+            await interaction.response.send_message(embed=embed)
             try:
                 await member.send(embed=embed)
             except:

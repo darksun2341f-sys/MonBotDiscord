@@ -293,6 +293,7 @@ class PremiumPanelView(ui.View):
                     ("**/mute** <user>", "Empêcher un membre de parler", False),
                     ("**/unmute** <user>", "Retirer le silence", False),
                     ("**/warn** <user>", "Avertir un utilisateur", False),
+                    ("**/dewarn** <user>", "Retirer un avertissement", False),
                     ("**/clear** [nombre]", "Supprimer des messages (max 100)", False),
                     ("**/lock**", "Verrouiller le channel", False),
                     ("**/unlock**", "Déverrouiller le channel", False),

@@ -90,5 +90,22 @@ async def setup_hook():
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("🏓 Pong !")
 
+@bot.tree.command(name="sync_commands", description="Force la resynchronisation des commandes slash.")
+async def sync_commands(interaction: discord.Interaction):
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("❌ Vous devez être administrateur pour synchroniser les commandes.", ephemeral=True)
+        return
+
+    await interaction.response.send_message("🔄 Synchronisation des commandes en cours...", ephemeral=True)
+    synced = []
+    for guild in bot.guilds:
+        try:
+            guild_synced = await bot.tree.sync(guild=discord.Object(id=guild.id))
+            synced.extend(guild_synced)
+        except Exception as e:
+            print(f"❌ Échec de synchronisation pour {guild.name}: {e}")
+
+    await interaction.followup.send(f"✅ Synchronisation terminée : {len(synced)} commande(s) synchronisée(s).", ephemeral=True)
+
 # Lancement du bot
 bot.run(TOKEN)

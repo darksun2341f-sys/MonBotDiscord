@@ -16,19 +16,25 @@ document.addEventListener('DOMContentLoaded', () => {
   forms.forEach((form) => {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const payload = Object.fromEntries(new FormData(form).entries());
+      const formData = new FormData(form);
+      const payload = {};
+      for (const [key, value] of formData.entries()) {
+        payload[key] = value;
+      }
       const section = form.dataset.section;
       const guildId = guildSelect?.value || 'default';
+
       const response = await fetch(`/api/settings/${guildId}/${section}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
       if (response.ok) {
         const button = form.querySelector('button');
         if (button) {
           button.textContent = 'Saved';
-          window.setTimeout(() => (button.textContent = 'Save'), 1200);
+          setTimeout(() => { button.textContent = 'Save'; }, 1200);
         }
       }
     });

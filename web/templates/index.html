@@ -37,6 +37,10 @@
           {% else %}
             {% if oauth_enabled %}
               <a class="btn btn-primary" href="/login">Sign in with Discord</a>
+            {% elif admin_login_enabled %}
+              <a class="btn btn-primary" href="/login">Admin login</a>
+            {% elif public_dashboard_enabled %}
+              <a class="btn btn-primary" href="/dashboard">Open dashboard</a>
             {% endif %}
           {% endif %}
           <a class="btn btn-secondary" href="#modules">Explore modules</a>

@@ -34,6 +34,7 @@ app.include_router(settings.router)
 async def home(request: Request) -> HTMLResponse:
     user = request.session.get("user_name")
     guilds = request.session.get("guilds", [])
+    public_enabled = config.PUBLIC_DASHBOARD_ENABLED
     return TEMPLATES.TemplateResponse(
         request,
         "index.html",
@@ -43,6 +44,7 @@ async def home(request: Request) -> HTMLResponse:
             "guilds": guilds,
             "oauth_enabled": bool(config.DISCORD_CLIENT_ID and config.DISCORD_CLIENT_SECRET),
             "admin_login_enabled": bool(config.ADMIN_LOGIN_ENABLED),
+            "public_dashboard_enabled": public_enabled,
         },
     )
 
@@ -50,7 +52,11 @@ async def home(request: Request) -> HTMLResponse:
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request, guild: str | None = None) -> HTMLResponse:
     if not request.session.get("user_name"):
-        return RedirectResponse(url="/", status_code=302)
+        if not config.PUBLIC_DASHBOARD_ENABLED:
+            return RedirectResponse(url="/", status_code=302)
+        request.session["user_name"] = "Guest"
+        request.session["guilds"] = []
+        request.session["selected_guild_id"] = None
 
     if guild:
         request.session["selected_guild_id"] = guild

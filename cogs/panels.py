@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands, ui
 import json
 from pathlib import Path
+from utils.authorization import has_bot_administrator_access, has_permission
 
 # ==================== VIEWS ====================
 
@@ -194,7 +195,7 @@ class UserPanelView(ui.View):
 
     @ui.button(label="🔧 Actions", style=discord.ButtonStyle.red)
     async def actions_button(self, interaction: discord.Interaction, button: ui.Button):
-        if not interaction.user.guild_permissions.moderate_members:
+        if not has_permission(interaction, "moderate_members"):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
         
@@ -432,7 +433,7 @@ class Panels(commands.Cog):
 
     @app_commands.command(name="admin-panel", description="Panel administrateur (admin only)")
     async def admin_panel_cmd(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
         

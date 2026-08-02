@@ -1,0 +1,174 @@
+[2026-08-01 17:42:50] [INFO    ] discord.client: logging in using static token
+[2026-08-01 17:42:51] [INFO    ] discord.gateway: Shard ID None has connected to Gateway (Session ID: 03742fb70494d30e7328158bf3600e19).
+[2026-08-01 17:59:44] [ERROR   ] discord.app_commands.tree: Ignoring exception in command 'tableau-staff'
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1302, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 880, in _invoke_with_namespace
+    if not await self._check_can_run(interaction):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 1018, in _check_can_run
+    return await async_all(f(interaction) for f in predicates)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\utils.py", line 723, in async_all
+    for elem in gen:
+                ^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 1018, in <genexpr>
+    return await async_all(f(interaction) for f in predicates)  # type: ignore
+                           ~^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\checks.py", line 340, in predicate
+    raise MissingPermissions(missing)
+discord.app_commands.errors.MissingPermissions: You are missing Administrator permission(s) to run this command.
+[2026-08-01 18:01:34] [ERROR   ] discord.app_commands.tree: Ignoring exception in command 'tableau-staff'
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1302, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 880, in _invoke_with_namespace
+    if not await self._check_can_run(interaction):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 1018, in _check_can_run
+    return await async_all(f(interaction) for f in predicates)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\utils.py", line 723, in async_all
+    for elem in gen:
+                ^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 1018, in <genexpr>
+    return await async_all(f(interaction) for f in predicates)  # type: ignore
+                           ~^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\checks.py", line 340, in predicate
+    raise MissingPermissions(missing)
+discord.app_commands.errors.MissingPermissions: You are missing Administrator permission(s) to run this command.
+[2026-08-01 18:01:43] [ERROR   ] discord.app_commands.tree: Ignoring exception in command 'bump-toggle'
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\OneDrive\Bureau\MonBotDiscord\cogs\bumper.py", line 188, in bump_toggle
+    if not has_bot_administrator_access(interaction):
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\OneDrive\Bureau\MonBotDiscord\cogs\command_config.py", line 228, in patched_send_message
+    kwargs.setdefault("ephemeral", True)
+       ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\interactions.py", line 1085, in send_message
+    data = await adapter.create_interaction_response(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\webhook\async_.py", line 224, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1302, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 884, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 877, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'bump-toggle' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+[2026-08-01 18:03:06] [ERROR   ] discord.app_commands.tree: Ignoring exception in command 'tableau-staff'
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1302, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 880, in _invoke_with_namespace
+    if not await self._check_can_run(interaction):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 1018, in _check_can_run
+    return await async_all(f(interaction) for f in predicates)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\utils.py", line 723, in async_all
+    for elem in gen:
+                ^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 1018, in <genexpr>
+    return await async_all(f(interaction) for f in predicates)  # type: ignore
+                           ~^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\checks.py", line 340, in predicate
+    raise MissingPermissions(missing)
+discord.app_commands.errors.MissingPermissions: You are missing Administrator permission(s) to run this command.
+[2026-08-01 18:05:24] [ERROR   ] discord.app_commands.tree: Ignoring exception in command 'commands-panel'
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\OneDrive\Bureau\MonBotDiscord\cogs\panels.py", line 481, in commands_panel_cmd
+    embed = view.create_embed()
+  File "C:\Users\jacob\OneDrive\Bureau\MonBotDiscord\cogs\command_config.py", line 228, in patched_send_message
+    kwargs.setdefault("ephemeral", True)
+       ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\interactions.py", line 1085, in send_message
+    data = await adapter.create_interaction_response(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\webhook\async_.py", line 224, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1302, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 884, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 877, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'commands-panel' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+[2026-08-01 18:11:29] [ERROR   ] discord.app_commands.tree: Ignoring exception in command tree
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1138, in wrapper
+    await self._call(interaction)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1270, in _call
+    command, options = self._get_app_command_options(data)
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1174, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'set-logs-channel' not found
+[2026-08-01 18:36:42] [ERROR   ] discord.app_commands.tree: Ignoring exception in command tree
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1138, in wrapper
+    await self._call(interaction)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1270, in _call
+    command, options = self._get_app_command_options(data)
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1174, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'status' not found
+[2026-08-01 19:01:38] [ERROR   ] discord.app_commands.tree: Ignoring exception in command 'absence-panel'
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\OneDrive\Bureau\MonBotDiscord\cogs\absences.py", line 219, in absence_panel
+    embed.set_footer(text="📋 Panel d'administration des absences")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\OneDrive\Bureau\MonBotDiscord\cogs\command_config.py", line 228, in patched_send_message
+    kwargs.setdefault("ephemeral", True)
+       ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\interactions.py", line 1085, in send_message
+    data = await adapter.create_interaction_response(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\webhook\async_.py", line 224, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\tree.py", line 1302, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 884, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jacob\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\discord\app_commands\commands.py", line 877, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'absence-panel' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction

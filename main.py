@@ -1,3 +1,8 @@
+import truststore
+
+# Use the Windows trust store for Discord's HTTPS connection.
+truststore.inject_into_ssl()
+
 import discord
 from discord.ext import commands
 import os
@@ -43,10 +48,14 @@ async def on_ready():
     print("=" * 50)
 
     try:
-        synced = await bot.tree.sync()
-        print(f"✅ {len(synced)} commande(s) slash synchronisée(s).")
-        print("💡 Les commandes peuvent mettre jusqu'à 1 heure à apparaître.")
-        print("💡 Essayez: /panel, /admin-panel, /help, /xp, /leaderboard")
+        synced = []
+        for guild in bot.guilds:
+            guild_synced = await bot.tree.sync(guild=discord.Object(id=guild.id))
+            synced.extend(guild_synced)
+            print(f"✅ Commandes slash synchronisées pour {guild.name}.")
+
+        print(f"✅ {len(synced)} commande(s) slash synchronisée(s) sur les serveurs.")
+        print("💡 Essayez maintenant: /help, /status, /botinfo")
     except Exception as e:
         print(f"❌ Erreur: {e}")
 

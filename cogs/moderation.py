@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from datetime import timedelta
+from utils.authorization import has_permission
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -13,7 +14,7 @@ class Moderation(commands.Cog):
         reason="Raison de l'expulsion"
     )
     async def kick(self, interaction: discord.Interaction, member: discord.Member, reason: str = "Aucune raison"):
-        if interaction.user.guild_permissions.kick_members:
+        if has_permission(interaction, "kick_members"):
             await member.kick(reason=reason)
             embed = discord.Embed(
                 title="⚠️ Utilisateur Expulsé",
@@ -32,7 +33,7 @@ class Moderation(commands.Cog):
         reason="Raison du ban"
     )
     async def ban(self, interaction: discord.Interaction, member: discord.Member, reason: str = "Aucune raison"):
-        if interaction.user.guild_permissions.ban_members:
+        if has_permission(interaction, "ban_members"):
             await member.ban(reason=reason)
             embed = discord.Embed(
                 title="🔨 Utilisateur Banni",
@@ -48,7 +49,7 @@ class Moderation(commands.Cog):
     @app_commands.command(name="unban", description="Débannit un utilisateur")
     @app_commands.describe(user="L'utilisateur à débannir (ID ou nom)")
     async def unban(self, interaction: discord.Interaction, user: str):
-        if interaction.user.guild_permissions.ban_members:
+        if has_permission(interaction, "ban_members"):
             try:
                 user_id = int(user)
                 banned_users = [entry async for entry in interaction.guild.bans()]
@@ -70,7 +71,7 @@ class Moderation(commands.Cog):
         reason="Raison du mute"
     )
     async def mute(self, interaction: discord.Interaction, member: discord.Member, duration: int, reason: str = "Aucune raison"):
-        if interaction.user.guild_permissions.moderate_members:
+        if has_permission(interaction, "moderate_members"):
             try:
                 timeout = timedelta(minutes=duration)
                 await member.timeout(timeout, reason=reason)
@@ -89,7 +90,7 @@ class Moderation(commands.Cog):
     @app_commands.command(name="unmute", description="Enlève le mute d'un utilisateur")
     @app_commands.describe(member="L'utilisateur à unmute")
     async def unmute(self, interaction: discord.Interaction, member: discord.Member):
-        if interaction.user.guild_permissions.moderate_members:
+        if has_permission(interaction, "moderate_members"):
             try:
                 await member.timeout(None)
                 await interaction.response.send_message(f"✅ {member.mention} a été unmute!")
@@ -104,7 +105,7 @@ class Moderation(commands.Cog):
         reason="Raison de l'avertissement"
     )
     async def warn(self, interaction: discord.Interaction, member: discord.Member, reason: str = "Aucune raison"):
-        if interaction.user.guild_permissions.moderate_members:
+        if has_permission(interaction, "moderate_members"):
             embed = discord.Embed(
                 title="⚠️ Avertissement",
                 description=f"{member.mention} a reçu un avertissement",
@@ -125,7 +126,7 @@ class Moderation(commands.Cog):
     @app_commands.command(name="clear", description="Supprime des messages")
     @app_commands.describe(amount="Nombre de messages à supprimer (max 100)")
     async def clear(self, interaction: discord.Interaction, amount: int):
-        if interaction.user.guild_permissions.manage_messages:
+        if has_permission(interaction, "manage_messages"):
             if amount > 100:
                 amount = 100
             deleted = await interaction.channel.purge(limit=amount)

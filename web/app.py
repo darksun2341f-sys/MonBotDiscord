@@ -1,74 +1,69 @@
-"""FastAPI application entrypoint for the dashboard.
+from __future__ import annotations
 
-This module creates the FastAPI app, mounts static files, configures templates,
-registers routers and sets up middleware. Keep this file small: app wiring only.
-"""
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
-from starlette.middleware.sessions import SessionMiddleware
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-import os
-from . import config
-
-# Create app
-app = FastAPI(title="MonBotDiscord Dashboard", version="0.1.0")
-
-# Sessions (used for OAuth and simple session auth)
-app.add_middleware(SessionMiddleware, secret_key=config.SECRET_KEY)
-
-# Templates: simple Jinja environment wrapper (we'll use render helper in routers)
-TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
-jinja_env = Environment(
-    loader=FileSystemLoader(TEMPLATE_DIR),
-    autoescape=select_autoescape(["html", "xml"]),
-)
-
-# Mount static
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
-
-# Include routers (health, auth, api)
-from .api import health, base as api_base, guilds as api_guilds, plugins as api_plugins
-from .api.modules import router as modules_router
-from .auth import router as auth_router
-from .db import init_db
-from .modules.loader import load_modules
+from contextlib import asynccontextmanager
 from pathlib import Path
 
-app.include_router(health, prefix="/api")
-app.include_router(api_base, prefix="/api")
-app.include_router(api_guilds, prefix="/api")
-app.include_router(api_plugins, prefix="/api")
-app.include_router(modules_router, prefix="/api")
-app.include_router(auth_router, prefix="")
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
 
-# Load modules explicitly at import time so routers and models are registered.
-loaded_modules = load_modules()
-for module_cls in loaded_modules:
-    router = module_cls.get_router()
-    if router is not None:
-        app.include_router(router, prefix=module_cls.get_api_prefix(), tags=module_cls.get_tags())
+from . import config
+from .database import init_db
+from .routers import auth, settings
 
-    if hasattr(module_cls, 'get_ui_router'):
-        ui_router = module_cls.get_ui_router()
-        if ui_router is not None:
-            app.include_router(ui_router, prefix="", tags=module_cls.get_tags())
-
-    if hasattr(module_cls, 'get_static_dir'):
-        static_dir = module_cls.get_static_dir()
-        if static_dir and Path(static_dir).exists():
-            mount_path = f"/static/modules/{module_cls.name}"
-            app.mount(mount_path, StaticFiles(directory=str(static_dir)), name=f"static_{module_cls.name}")
+BASE_DIR = Path(__file__).resolve().parent
+TEMPLATES = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
-@app.on_event("startup")
-async def on_startup():
-    """Ensure database tables exist before serving requests."""
-    await init_db()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="MonBotDiscord Dashboard", version="1.0.0", lifespan=lifespan)
+app.add_middleware(SessionMiddleware, secret_key=config.SECRET_KEY)
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+app.include_router(auth.router)
+app.include_router(settings.router)
 
 
 @app.get("/", response_class=HTMLResponse)
-async def index():
-    """Render a simple index page. Real pages will live in dedicated routers."""
-    template = jinja_env.get_template("index.html")
-    return template.render()
+async def home(request: Request) -> HTMLResponse:
+    user = request.session.get("user_name")
+    guilds = request.session.get("guilds", [])
+    return TEMPLATES.TemplateResponse(
+        request,
+        "index.html",
+        {
+            "request": request,
+            "user": user,
+            "guilds": guilds,
+            "oauth_enabled": bool(config.DISCORD_CLIENT_ID and config.DISCORD_CLIENT_SECRET),
+        },
+    )
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard(request: Request, guild: str | None = None) -> HTMLResponse:
+    if not request.session.get("user_name"):
+        return RedirectResponse(url="/", status_code=302)
+
+    if guild:
+        request.session["selected_guild_id"] = guild
+
+    guilds = request.session.get("guilds", [])
+    selected_guild_id = request.session.get("selected_guild_id")
+    selected_guild = next((guild for guild in guilds if str(guild.get("id")) == str(selected_guild_id)), guilds[0] if guilds else None)
+    return TEMPLATES.TemplateResponse(
+        request,
+        "dashboard.html",
+        {
+            "request": request,
+            "user": request.session.get("user_name"),
+            "guilds": guilds,
+            "selected_guild": selected_guild,
+        },
+    )

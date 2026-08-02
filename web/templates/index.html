@@ -1,9 +1,87 @@
-{% extends 'base.html' %}
-{% block content %}
-  <h1>Bienvenue</h1>
-  <div class="cards">
-    <div class="card">Serveurs configurés: <strong>0</strong></div>
-    <div class="card">Tickets actifs: <strong>0</strong></div>
-    <div class="card">Statistiques</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MonBotDiscord Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="page-shell hero-shell">
+    <nav class="topbar">
+      <div class="brand">MonBotDiscord</div>
+      <div class="top-actions">
+        {% if user %}
+          <a class="btn btn-secondary" href="/dashboard">Open dashboard</a>
+          <a class="btn btn-ghost" href="/logout">Logout</a>
+        {% else %}
+          {% if oauth_enabled %}
+            <a class="btn btn-primary" href="/login">Connect Discord</a>
+          {% else %}
+            <span class="badge">Discord OAuth not configured</span>
+          {% endif %}
+        {% endif %}
+      </div>
+    </nav>
+
+    <section class="hero-card">
+      <div>
+        <p class="eyebrow">Modern control center</p>
+        <h1>Run your Discord server from a polished dashboard.</h1>
+        <p class="hero-copy">Manage tickets, welcome messages, moderation, economy, giveaways, and more from a single, scalable experience built for the bot.</p>
+        <div class="hero-actions">
+          {% if user %}
+            <a class="btn btn-primary" href="/dashboard">Go to dashboard</a>
+          {% else %}
+            {% if oauth_enabled %}
+              <a class="btn btn-primary" href="/login">Sign in with Discord</a>
+            {% endif %}
+          {% endif %}
+          <a class="btn btn-secondary" href="#modules">Explore modules</a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <strong>FastAPI</strong>
+          <span>Clean API foundation</span>
+        </div>
+        <div class="stat-card">
+          <strong>SQLite</strong>
+          <span>Reliable local persistence</span>
+        </div>
+        <div class="stat-card">
+          <strong>Discord OAuth</strong>
+          <span>Admin server access</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules" class="module-grid">
+      <article class="module-card">
+        <h3>Tickets</h3>
+        <p>Create support flows and manage request states.</p>
+      </article>
+      <article class="module-card">
+        <h3>Welcome</h3>
+        <p>Welcome new members with personalized messages.</p>
+      </article>
+      <article class="module-card">
+        <h3>Moderation</h3>
+        <p>Keep community rules visible and enforceable.</p>
+      </article>
+      <article class="module-card">
+        <h3>Economy</h3>
+        <p>Launch point-based systems for fun and engagement.</p>
+      </article>
+      <article class="module-card">
+        <h3>Giveaways</h3>
+        <p>Handle raffles and event planning from one place.</p>
+      </article>
+      <article class="module-card">
+        <h3>Automod</h3>
+        <p>Protect your server with smart moderation rules.</p>
+      </article>
+    </section>
   </div>
-{% endblock %}
+</body>
+</html>

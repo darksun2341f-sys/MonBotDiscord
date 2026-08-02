@@ -4,6 +4,7 @@ from discord import app_commands
 import json
 from pathlib import Path
 from datetime import datetime
+from utils.authorization import has_bot_administrator_access
 
 class Bumper(commands.Cog):
     def __init__(self, bot):
@@ -184,7 +185,7 @@ class Bumper(commands.Cog):
     @app_commands.command(name="bump-toggle", description="🔔 Activer/Désactiver le système de bump [ADMIN]")
     async def bump_toggle(self, interaction: discord.Interaction):
         """Active ou désactive le système de bump"""
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
         
@@ -216,7 +217,7 @@ class Bumper(commands.Cog):
 
     @app_commands.command(name="bump-channel", description="📌 Définir le canal où les rappels de bump sont annoncés [ADMIN]")
     async def bump_channel(self, interaction: discord.Interaction, channel: discord.TextChannel):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
 
@@ -228,7 +229,7 @@ class Bumper(commands.Cog):
     @app_commands.command(name="manual-bump-reminder", description="🔔 Envoyer un reminder bump maintenant [ADMIN]")
     async def manual_bump_reminder(self, interaction: discord.Interaction):
         """Envoie manuellement un reminder au owner"""
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
         

@@ -4,6 +4,7 @@ from discord import app_commands
 from collections import defaultdict
 from datetime import datetime, timedelta
 import asyncio
+from utils.authorization import has_bot_administrator_access
 
 class AntiSpam(commands.Cog):
     def __init__(self, bot):
@@ -113,7 +114,7 @@ class AntiSpam(commands.Cog):
         time_window: int = None,
         mute_duration: int = None
     ):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
         

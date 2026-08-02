@@ -4,6 +4,7 @@ from discord import app_commands, ui
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
+from utils.authorization import has_bot_administrator_access
 
 class AbsenceModal(ui.Modal, title="📋 Déclarer une Absence"):
     """Modal pour déclarer une absence"""
@@ -82,7 +83,7 @@ class ReturnButton(ui.View):
     
     @ui.button(label="✅ Marqué comme Retour", style=discord.ButtonStyle.green, emoji="✅")
     async def return_button(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != self.user_id and not interaction.user.guild_permissions.administrator:
+        if interaction.user.id != self.user_id and not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous ne pouvez marquer que votre propre retour!", ephemeral=True)
             return
         
@@ -182,7 +183,7 @@ class Absences(commands.Cog):
     @app_commands.command(name="absence-panel", description="🎛️ Panel de gestion des absences [ADMIN]")
     async def absence_panel(self, interaction: discord.Interaction):
         """Affiche le panel de gestion des absences"""
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
         
@@ -222,7 +223,7 @@ class Absences(commands.Cog):
     @app_commands.describe(user="Le membre concerné")
     async def absence_remove(self, interaction: discord.Interaction, user: discord.User):
         """Retire l'absence d'un utilisateur"""
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous n'avez pas la permission!", ephemeral=True)
             return
         

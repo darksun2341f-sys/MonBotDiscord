@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands, ui
 import json
 from pathlib import Path
+from utils.authorization import has_bot_administrator_access, has_permission
 
 class TicketView(ui.View):
     def __init__(self, bot):
@@ -61,7 +62,7 @@ class CloseTicketView(ui.View):
 
     @ui.button(label="Fermer", style=discord.ButtonStyle.red, emoji="❌")
     async def close_ticket(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.guild_permissions.manage_channels or interaction.user == self.user:
+        if has_permission(interaction, "manage_channels") or interaction.user == self.user:
             await interaction.response.defer()
             await interaction.channel.delete()
         else:
@@ -73,7 +74,7 @@ class Tickets(commands.Cog):
 
     @app_commands.command(name="ticket-setup", description="Configure le système de tickets")
     async def ticket_setup(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Admin only!", ephemeral=True)
             return
         

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timedelta
 import random
+from utils.authorization import has_bot_administrator_access
 
 class GiveawayView(ui.View):
     def __init__(self, bot, giveaway_id):
@@ -15,12 +16,7 @@ class GiveawayView(ui.View):
     @ui.button(label="Participer", style=discord.ButtonStyle.green, emoji="🎉")
     async def participate(self, interaction: discord.Interaction, button: ui.Button):
         giveaway_file = Path(__file__).parent.parent / "database" / "giveaways.json"
-        
-        if giveaway_file.exists():
-            with open(giveaway_file, 'r', encoding='utf-8-sig') as f:
-                giveaways = json.load(f)
-        else:
-            giveaways = {}
+        giveaways = self.load_giveaways() if giveaway_file.exists() else {}
         
         giveaway = giveaways.get(str(self.giveaway_id))
         if not giveaway:
@@ -42,8 +38,20 @@ class Giveaways(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.giveaway_file = Path(__file__).parent.parent / "database" / "giveaways.json"
-        self.giveaway_file.parent.mkdir(exist_ok=True)
+        self.giveaway_file.parent.mkdir(parents=True, exist_ok=True)
+        if not self.giveaway_file.exists():
+            self.giveaway_file.write_text("{}", encoding="utf-8-sig")
         self.check_giveaways.start()
+
+    def load_giveaways(self):
+        try:
+            with open(self.giveaway_file, 'r', encoding='utf-8-sig') as f:
+                data = json.load(f)
+                return data if isinstance(data, dict) else {}
+        except json.JSONDecodeError:
+            return {}
+        except FileNotFoundError:
+            return {}
 
     @app_commands.command(name="giveaway", description="Crée un giveaway")
     @app_commands.describe(
@@ -52,15 +60,11 @@ class Giveaways(commands.Cog):
         winners="Nombre de gagnants"
     )
     async def create_giveaway(self, interaction: discord.Interaction, prize: str, duration: int, winners: int = 1):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Admin only!", ephemeral=True)
             return
         
-        if self.giveaway_file.exists():
-            with open(self.giveaway_file, 'r', encoding='utf-8-sig') as f:
-                giveaways = json.load(f)
-        else:
-            giveaways = {}
+        giveaways = self.load_giveaways()
         
         giveaway_id = len(giveaways) + 1
         end_time = datetime.now() + timedelta(minutes=duration)
@@ -88,9 +92,9 @@ class Giveaways(commands.Cog):
         embed.add_field(name="Fin dans", value=f"{duration} minutes", inline=False)
         embed.set_footer(text=f"ID: {giveaway_id}")
         
-        msg = await interaction.response.send_message(embed=embed, view=GiveawayView(self.bot, giveaway_id))
-        
-        giveaway_data["message_id"] = msg.id
+        await interaction.response.send_message(embed=embed, view=GiveawayView(self.bot, giveaway_id))
+        msg = await interaction.original_response()
+        giveaway_data["message_id"] = msg.id if msg else None
         with open(self.giveaway_file, 'w', encoding='utf-8-sig') as f:
             json.dump(giveaways, f, indent=2)
 
@@ -99,9 +103,8 @@ class Giveaways(commands.Cog):
         if not self.giveaway_file.exists():
             return
         
-        with open(self.giveaway_file, 'r', encoding='utf-8-sig') as f:
-            giveaways = json.load(f)
-        
+        giveaways = self.load_giveaways()
+
         now = datetime.now()
         to_remove = []
         

@@ -1,5 +1,6 @@
 discord.py==2.7.1
 python-dotenv==1.2.2
+truststore
 aiosqlite==0.22.1
 psutil==5.9.8
 gspread==5.11.0

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="brand">MonBotDiscord</div>
+      <p class="sidebar-label">Connected as {{ user }}</p>
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-section="overview">Overview</button>
+        <button class="nav-btn" data-section="tickets">Tickets</button>
+        <button class="nav-btn" data-section="welcome">Welcome</button>
+        <button class="nav-btn" data-section="moderation">Moderation</button>
+        <button class="nav-btn" data-section="economy">Economy</button>
+        <button class="nav-btn" data-section="giveaways">Giveaways</button>
+        <button class="nav-btn" data-section="automod">Automod</button>
+        <button class="nav-btn" data-section="suggestions">Suggestions</button>
+        <button class="nav-btn" data-section="settings">Settings</button>
+      </nav>
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary" href="/logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-panel">
+      <header class="panel-header">
+        <div>
+          <p class="eyebrow">Control center</p>
+          <h1>{% if selected_guild %}{{ selected_guild.name }}{% else %}Your server{% endif %}</h1>
+        </div>
+        <div class="server-picker">
+          <label for="guildSelect">Server</label>
+          <select id="guildSelect">
+            {% for guild in guilds %}
+              <option value="{{ guild.id }}" {% if selected_guild and selected_guild.id == guild.id %}selected{% endif %}>{{ guild.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </header>
+
+      <section id="overview" class="panel-section active">
+        <div class="cards">
+          <div class="card"><h3>Tickets</h3><p>Keep support requests organized and visible.</p></div>
+          <div class="card"><h3>Welcome</h3><p>Personalize onboarding and member engagement.</p></div>
+          <div class="card"><h3>Moderation</h3><p>Centralize moderation and log actions.</p></div>
+        </div>
+      </section>
+
+      <section id="tickets" class="panel-section">
+        <h2>Tickets</h2>
+        <form class="config-form" data-section="tickets">
+          <label>Support channel <input name="support_channel" placeholder="#support"></label>
+          <label>Staff role <input name="staff_role" placeholder="Support Team"></label>
+          <label>Auto close after (hours) <input type="number" name="auto_close_hours" value="24"></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+
+      <section id="welcome" class="panel-section">
+        <h2>Welcome</h2>
+        <form class="config-form" data-section="welcome">
+          <label>Welcome channel <input name="welcome_channel" placeholder="#welcome"></label>
+          <label>Welcome message <textarea name="welcome_message">Welcome to the server, {{ user }}!</textarea></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+
+      <section id="moderation" class="panel-section">
+        <h2>Moderation</h2>
+        <form class="config-form" data-section="moderation">
+          <label>Mod log channel <input name="mod_log_channel" placeholder="#mod-log"></label>
+          <label>Mute role <input name="mute_role" placeholder="Muted"></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+
+      <section id="economy" class="panel-section">
+        <h2>Economy</h2>
+        <form class="config-form" data-section="economy">
+          <label>Currency name <input name="currency_name" value="Coins"></label>
+          <label>Daily reward <input type="number" name="daily_reward" value="50"></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+
+      <section id="giveaways" class="panel-section">
+        <h2>Giveaways</h2>
+        <form class="config-form" data-section="giveaways">
+          <label>Giveaway channel <input name="giveaway_channel" placeholder="#giveaways"></label>
+          <label>Default duration (minutes) <input type="number" name="default_duration" value="60"></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+
+      <section id="automod" class="panel-section">
+        <h2>Automod</h2>
+        <form class="config-form" data-section="automod">
+          <label>Enable spam detection <input type="checkbox" name="spam_detection" checked></label>
+          <label>Enable invites filtering <input type="checkbox" name="invite_filtering" checked></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+
+      <section id="suggestions" class="panel-section">
+        <h2>Suggestions</h2>
+        <form class="config-form" data-section="suggestions">
+          <label>Suggestions channel <input name="suggestions_channel" placeholder="#suggestions"></label>
+          <label>Require approval <input type="checkbox" name="require_approval"></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+
+      <section id="settings" class="panel-section">
+        <h2>Settings</h2>
+        <form class="config-form" data-section="settings">
+          <label>Bot prefix <input name="prefix" value="!"></label>
+          <label>Language <input name="language" value="en"></label>
+          <label>Public dashboard <input type="checkbox" name="public_dashboard"></label>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

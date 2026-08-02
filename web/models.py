@@ -1,13 +1,12 @@
-"""Database models for the rebuilt dashboard."""
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, String, Text
+from sqlalchemy import String, Text, DateTime, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..database import Base
+from .database import Base
 
 
 class DashboardUser(Base):
@@ -34,6 +33,3 @@ class GuildSetting(Base):
     config_json: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
-__all__ = ["DashboardUser", "GuildSetting", "Base"]

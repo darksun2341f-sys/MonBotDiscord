@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands, ui
 import json
 from pathlib import Path
+from utils.authorization import has_bot_administrator_access
 
 class RoleView(ui.View):
     def __init__(self, bot, roles_dict):
@@ -66,7 +67,7 @@ class ReactionRoles(commands.Cog):
         label="Label du bouton"
     )
     async def role_button(self, interaction: discord.Interaction, role: discord.Role, label: str = "Obtenir Rôle"):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Admin only!", ephemeral=True)
             return
         
@@ -83,7 +84,7 @@ class ReactionRoles(commands.Cog):
 
     @app_commands.command(name="role-menu", description="Crée un menu déroulant pour les rôles")
     async def role_menu(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Admin only!", ephemeral=True)
             return
         

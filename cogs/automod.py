@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import re
+from utils.authorization import has_bot_administrator_access, has_permission
 
 class AutoMod(commands.Cog):
     def __init__(self, bot):
@@ -85,7 +86,7 @@ class AutoMod(commands.Cog):
     @app_commands.command(name="add-filter", description="Ajouter un mot au filtre")
     @app_commands.describe(word="Le mot à filtrer")
     async def add_filter(self, interaction: discord.Interaction, word: str):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Admin only!", ephemeral=True)
             return
         
@@ -98,7 +99,7 @@ class AutoMod(commands.Cog):
     @app_commands.command(name="remove-filter", description="Retirer un mot du filtre")
     @app_commands.describe(word="Le mot à retirer")
     async def remove_filter(self, interaction: discord.Interaction, word: str):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Admin only!", ephemeral=True)
             return
         
@@ -111,7 +112,7 @@ class AutoMod(commands.Cog):
     @app_commands.command(name="slowmode", description="Active le slowmode")
     @app_commands.describe(seconds="Durée en secondes (0 pour désactiver)")
     async def slowmode(self, interaction: discord.Interaction, seconds: int):
-        if not interaction.user.guild_permissions.manage_channels:
+        if not has_permission(interaction, "manage_channels"):
             await interaction.response.send_message("❌ Permission refusée!", ephemeral=True)
             return
         
@@ -126,7 +127,7 @@ class AutoMod(commands.Cog):
 
     @app_commands.command(name="lock", description="Verrouille le channel")
     async def lock(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.manage_channels:
+        if not has_permission(interaction, "manage_channels"):
             await interaction.response.send_message("❌ Permission refusée!", ephemeral=True)
             return
         
@@ -141,7 +142,7 @@ class AutoMod(commands.Cog):
 
     @app_commands.command(name="unlock", description="Déverrouille le channel")
     async def unlock(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.manage_channels:
+        if not has_permission(interaction, "manage_channels"):
             await interaction.response.send_message("❌ Permission refusée!", ephemeral=True)
             return
         

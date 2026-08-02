@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands, ui
+from utils.authorization import has_bot_administrator_access
 
 class SuggestionView(ui.View):
     def __init__(self, bot, suggestion_id, author_id):
@@ -49,7 +50,7 @@ class Suggestions(commands.Cog):
 
     @app_commands.command(name="setup-suggestions", description="Configure le canal suggestions")
     async def setup_suggestions(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Admin only!", ephemeral=True)
             return
         

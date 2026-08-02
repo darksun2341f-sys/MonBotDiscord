@@ -9,6 +9,7 @@ from discord.ext import commands, tasks
 from discord import app_commands
 import gspread
 from google.oauth2.service_account import Credentials
+from utils.authorization import has_bot_administrator_access
 
 class CommandConfig(commands.Cog):
     def __init__(self, bot):
@@ -26,7 +27,8 @@ class CommandConfig(commands.Cog):
         self.last_google_sync = None
         self.load_google_settings()
 
-        self.bot.tree.interaction_check(self.command_check)
+        # interaction_check is an async registration method in discord.py 2.x
+        self.bot.tree.interaction_check = self.command_check
         self.patch_interaction_send_message()
 
         if self.google_sync_interval > 0:
@@ -195,6 +197,25 @@ class CommandConfig(commands.Cog):
         settings = self.get_command_settings(interaction.guild, interaction.command.name)
         return settings.get("visibility", "public") == "private"
 
+    async def register_interaction_check(self):
+        try:
+            await self.bot.tree.interaction_check(self.command_check)
+        except Exception as e:
+            print(f"⚠️ Impossible d'enregistrer interaction_check: {e}")
+
+    async def command_name_autocomplete(
+        self, interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        query = current.casefold().lstrip("/")
+        command_names = sorted(
+            {command.name for command in self.bot.tree.get_commands()}
+        )
+        return [
+            app_commands.Choice(name=f"/{name}", value=name)
+            for name in command_names
+            if query in name.casefold()
+        ][:25]
+
     def patch_interaction_send_message(self):
         if getattr(CommandConfig, "_interaction_response_patched", False):
             return
@@ -217,7 +238,7 @@ class CommandConfig(commands.Cog):
         if not interaction.command:
             return True
 
-        if interaction.user.guild_permissions.administrator:
+        if has_bot_administrator_access(interaction):
             return True
 
         command_name = interaction.command.name
@@ -255,12 +276,13 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-config", description="⚙️ Configurer une commande")
     @app_commands.describe(command="La commande à configurer")
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_config(self, interaction: discord.Interaction, command: str):
         await self.send_status_embed(interaction, command)
 
     @app_commands.command(name="command-sync-google", description="🔄 Synchroniser les commandes depuis Google Sheets")
     async def command_sync_google(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         if not self.google_worksheet:
@@ -276,7 +298,7 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-export-google", description="⬆️ Exporter les commandes vers Google Sheets")
     async def command_export_google(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         if not self.google_worksheet:
@@ -290,8 +312,9 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-disable", description="❌ Désactiver une commande")
     @app_commands.describe(command="La commande à désactiver")
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_disable(self, interaction: discord.Interaction, command: str):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         self.set_command_setting(interaction.guild, command, "enabled", False)
@@ -299,8 +322,9 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-enable", description="✅ Réactiver une commande")
     @app_commands.describe(command="La commande à réactiver")
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_enable(self, interaction: discord.Interaction, command: str):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         self.set_command_setting(interaction.guild, command, "enabled", True)
@@ -308,8 +332,9 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-set-role", description="🔒 Restreindre une commande à un rôle")
     @app_commands.describe(command="La commande à configurer", role="Le rôle requis")
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_set_role(self, interaction: discord.Interaction, command: str, role: discord.Role):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         self.set_command_setting(interaction.guild, command, "required_role", role.id)
@@ -317,8 +342,9 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-clear-role", description="🧹 Retirer la restriction de rôle d'une commande")
     @app_commands.describe(command="La commande à configurer")
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_clear_role(self, interaction: discord.Interaction, command: str):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         self.set_command_setting(interaction.guild, command, "required_role", None)
@@ -326,8 +352,9 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-set-channel", description="📍 Restreindre une commande à un canal")
     @app_commands.describe(command="La commande à configurer", channel="Le canal autorisé")
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_set_channel(self, interaction: discord.Interaction, command: str, channel: discord.TextChannel):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         self.set_command_setting(interaction.guild, command, "required_channel", channel.id)
@@ -335,8 +362,9 @@ class CommandConfig(commands.Cog):
 
     @app_commands.command(name="command-clear-channel", description="🧹 Retirer la restriction de canal d'une commande")
     @app_commands.describe(command="La commande à configurer")
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_clear_channel(self, interaction: discord.Interaction, command: str):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         self.set_command_setting(interaction.guild, command, "required_channel", None)
@@ -348,8 +376,9 @@ class CommandConfig(commands.Cog):
         app_commands.Choice(name="Public", value="public"),
         app_commands.Choice(name="Privé", value="private")
     ])
+    @app_commands.autocomplete(command=command_name_autocomplete)
     async def command_set_visibility(self, interaction: discord.Interaction, command: str, visibility: app_commands.Choice[str]):
-        if not interaction.user.guild_permissions.administrator:
+        if not has_bot_administrator_access(interaction):
             await interaction.response.send_message("❌ Vous devez être administrateur.", ephemeral=True)
             return
         self.set_command_setting(interaction.guild, command, "visibility", visibility.value)
